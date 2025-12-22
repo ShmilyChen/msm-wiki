@@ -41,16 +41,11 @@ jobs:
           fi
 
           COMMIT_SHA="$(git rev-parse HEAD)"
-          SHORT_SHA="$(git rev-parse --short HEAD)"
 
-          # 添加日期后缀，避免版本冲突
-          DATE_SUFFIX="$(date +%Y%m%d)"
-          BUILD_VERSION="${VERSION}-${DATE_SUFFIX}-${SHORT_SHA}"
-
-          echo "version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
 
-          echo "构建版本: ${BUILD_VERSION}"
+          echo "构建版本: ${VERSION}"
           echo "提交 SHA: ${COMMIT_SHA}"
 
   build:
@@ -175,7 +170,7 @@ jobs:
         with:
           path: dist
 
-      - name: 创建/更新 daily-build tag
+      - name: 创建/更新版本 tag
         shell: bash
         run: |
           set -euo pipefail
@@ -185,19 +180,19 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 删除旧的 daily-build tag（如果存在）
-          git tag -d daily-build >/dev/null 2>&1 || true
-          git push origin ":refs/tags/daily-build" || true
+          # 删除旧的版本 tag（如果存在）
+          git tag -d "${VERSION}" >/dev/null 2>&1 || true
+          git push origin ":refs/tags/${VERSION}" || true
 
-          # 创建新的 daily-build tag
-          git tag -a daily-build -m "每日构建 ${VERSION}" "${SHA}"
-          git push origin "refs/tags/daily-build"
+          # 创建新的版本 tag
+          git tag -a "${VERSION}" -m "每日构建 ${VERSION}" "${SHA}"
+          git push origin "refs/tags/${VERSION}"
 
       - name: 创建/更新 GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: daily-build
-          name: 每日构建 - ${{ needs.prepare.outputs.version }}
+          tag: ${{ needs.prepare.outputs.version }}
+          name: ${{ needs.prepare.outputs.version }}
           body: |
             ## 每日自动构建
 
@@ -207,8 +202,7 @@ jobs:
             **构建时间**: ${{ github.event.repository.updated_at }}
 
             此版本由 GitHub Actions 每日自动构建生成。
-          makeLatest: false
-          prerelease: true
+          makeLatest: true
           allowUpdates: true
           replacesArtifacts: true
           artifacts: dist/**/msm-${{ needs.prepare.outputs.version }}-*.tar.gz
