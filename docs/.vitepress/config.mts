@@ -158,8 +158,8 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present MSM Team'
+      message: 'MSM - 统一管理 MosDNS、SingBox、Mihomo 的开源平台',
+      copyright: 'Copyright © 2024-present MSM Project'
     },
 
     search: {
