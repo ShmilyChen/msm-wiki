@@ -77,14 +77,17 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 ### 手动安装
 
 ```bash
-# 下载最新版本
-wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-linux-amd64
+# 下载最新版本（以 0.7.1 为例，请替换为实际版本号）
+wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.1-linux-amd64.tar.gz
+
+# 解压
+tar -xzf msm-0.7.1-linux-amd64.tar.gz
 
 # 添加执行权限
-chmod +x msm-linux-amd64
+chmod +x msm
 
 # 运行
-./msm-linux-amd64
+./msm
 ```
 
 访问 `http://localhost:7777` 即可使用。

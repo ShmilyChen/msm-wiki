@@ -350,21 +350,22 @@ tail -f /opt/msm/logs/msm-error.log
 
 ## 更新 MSM
 
-### 方式一：使用脚本更新
+### 方式一：手动更新
 
 ```bash
 # 停止服务
 sudo systemctl stop msm
 
 # 备份当前版本
-sudo cp /opt/msm/msm /opt/msm/msm.backup
+sudo cp /usr/local/bin/msm /usr/local/bin/msm.backup
 
-# 下载最新版本
-wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-linux-amd64 -O /tmp/msm
+# 下载最新版本（以 0.7.1 为例，请替换为实际版本号）
+wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.1-linux-amd64.tar.gz
+tar -xzf msm-0.7.1-linux-amd64.tar.gz
 
 # 替换文件
-sudo mv /tmp/msm /opt/msm/msm
-sudo chmod +x /opt/msm/msm
+sudo mv msm /usr/local/bin/msm
+sudo chmod +x /usr/local/bin/msm
 
 # 启动服务
 sudo systemctl start msm
