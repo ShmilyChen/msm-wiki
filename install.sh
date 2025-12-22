@@ -156,43 +156,6 @@ install_msm() {
     print_success "MSM 安装完成"
 }
 
-# 生成 JWT 密钥
-generate_jwt_secret() {
-    if command -v openssl &> /dev/null; then
-        openssl rand -base64 32
-    else
-        # 如果没有 openssl，使用 /dev/urandom
-        cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
-    fi
-}
-
-# 创建配置文件
-create_config() {
-    print_info "创建配置文件..."
-
-    local jwt_secret=$(generate_jwt_secret)
-
-    cat > ${INSTALL_DIR}/config.env << EOF
-# MSM 配置文件
-# 生成时间: $(date)
-
-# JWT 密钥（请妥善保管）
-JWT_SECRET=${jwt_secret}
-
-# 服务端口
-MSM_PORT=7777
-
-# 数据目录
-MSM_DATA_DIR=${INSTALL_DIR}/data
-
-# 日志级别 (debug, info, warn, error)
-LOG_LEVEL=info
-EOF
-
-    chmod 600 ${INSTALL_DIR}/config.env
-    print_success "配置文件已创建: ${INSTALL_DIR}/config.env"
-}
-
 # 创建 systemd 服务
 create_systemd_service() {
     print_info "创建 systemd 服务..."
@@ -207,7 +170,6 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=${INSTALL_DIR}
-EnvironmentFile=${INSTALL_DIR}/config.env
 ExecStart=${INSTALL_DIR}/msm
 Restart=on-failure
 RestartSec=5s
@@ -283,14 +245,9 @@ show_info() {
     echo ""
     echo "访问地址: http://${ip}:7777"
     echo ""
-    echo "默认账号:"
-    echo "  用户名: admin"
-    echo "  密码: admin123"
-    echo ""
     echo -e "${YELLOW}重要提示:${NC}"
-    echo "  1. 首次登录后请立即修改默认密码"
-    echo "  2. JWT 密钥已保存在: ${INSTALL_DIR}/config.env"
-    echo "  3. 请妥善保管配置文件"
+    echo "  1. 首次访问时需要创建管理员账号"
+    echo "  2. 请设置强密码并妥善保管"
     echo ""
     echo "常用命令:"
     echo "  启动服务: systemctl start ${SERVICE_NAME}"
@@ -299,7 +256,6 @@ show_info() {
     echo "  查看状态: systemctl status ${SERVICE_NAME}"
     echo "  查看日志: journalctl -u ${SERVICE_NAME} -f"
     echo ""
-    echo "配置文件: ${INSTALL_DIR}/config.env"
     echo "数据目录: ${INSTALL_DIR}/data"
     echo "日志目录: ${INSTALL_DIR}/logs"
     echo ""
@@ -335,9 +291,6 @@ main() {
 
     # 安装 MSM
     install_msm $temp_dir
-
-    # 创建配置文件
-    create_config
 
     # 创建 systemd 服务
     create_systemd_service

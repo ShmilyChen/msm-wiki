@@ -75,36 +75,7 @@ sudo mkdir -p /opt/msm/logs
 sudo mv msm /opt/msm/
 ```
 
-#### 3. 生成 JWT 密钥
-
-```bash
-# 使用 openssl 生成随机密钥
-openssl rand -base64 32
-```
-
-#### 4. 创建配置文件
-
-```bash
-sudo nano /opt/msm/config.env
-```
-
-添加以下内容：
-
-```bash
-# JWT 密钥（替换为你生成的密钥）
-JWT_SECRET=your-generated-secret-key-here
-
-# 服务端口
-MSM_PORT=7777
-
-# 数据目录
-MSM_DATA_DIR=/opt/msm/data
-
-# 日志级别
-LOG_LEVEL=info
-```
-
-#### 5. 创建 systemd 服务
+#### 3. 创建 systemd 服务
 
 ```bash
 sudo nano /etc/systemd/system/msm.service
@@ -122,7 +93,6 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/msm
-EnvironmentFile=/opt/msm/config.env
 ExecStart=/opt/msm/msm
 Restart=on-failure
 RestartSec=5s
@@ -142,7 +112,7 @@ StandardError=append:/opt/msm/logs/msm-error.log
 WantedBy=multi-user.target
 ```
 
-#### 6. 启动服务
+#### 4. 启动服务
 
 ```bash
 # 重载 systemd 配置
@@ -158,7 +128,7 @@ sudo systemctl enable msm
 sudo systemctl status msm
 ```
 
-#### 7. 配置防火墙
+#### 5. 配置防火墙
 
 **Ubuntu/Debian (UFW)**:
 ```bash
@@ -181,26 +151,13 @@ sudo firewall-cmd --reload
 http://your-server-ip:7777
 ```
 
-### 2. 首次登录
+### 2. 首次使用
 
-使用默认账号登录：
-
-- **用户名**: `admin`
-- **密码**: `admin123`
-
-::: danger 安全警告
-首次登录后请立即修改默认密码！
+::: tip 创建管理员账号
+首次访问时，系统会引导你创建管理员账号。请设置强密码并妥善保管。
 :::
 
-### 3. 修改密码
-
-1. 登录后点击右上角头像
-2. 选择"设置"
-3. 点击"修改密码"
-4. 输入旧密码和新密码
-5. 保存更改
-
-### 4. 创建新用户（可选）
+### 3. 创建新用户（可选）
 
 如果需要多用户使用：
 

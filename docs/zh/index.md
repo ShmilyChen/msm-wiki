@@ -70,12 +70,8 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 
 安装完成后访问 `http://your-server-ip:7777`
 
-默认账号：
-- 用户名: `admin`
-- 密码: `admin123`
-
-::: tip 提示
-首次登录后请立即修改默认密码！
+::: tip 首次使用
+首次访问时需要创建管理员账号，请妥善保管账号密码。
 :::
 
 ### 手动安装
@@ -87,9 +83,6 @@ wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-linux-amd6
 # 添加执行权限
 chmod +x msm-linux-amd64
 
-# 设置 JWT 密钥
-export JWT_SECRET="your-secret-key-here"
-
 # 运行
 ./msm-linux-amd64
 ```
@@ -97,17 +90,6 @@ export JWT_SECRET="your-secret-key-here"
 访问 `http://localhost:7777` 即可使用。
 
 查看 [详细安装教程](/zh/guide/install) 了解更多安装方式和配置选项。
-
-### Docker 部署
-
-```bash
-docker run -d \
-  --name msm \
-  -p 7777:7777 \
-  -e JWT_SECRET="your-secret-key" \
-  -v /opt/msm/data:/app/data \
-  yourusername/msm:latest
-```
 
 ## 技术栈
 
