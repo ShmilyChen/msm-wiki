@@ -10,14 +10,14 @@ hero:
     alt: MSM Logo
   actions:
     - theme: brand
-      text: Get Started
+      text: One-Click Install
       link: /en/guide/getting-started
     - theme: alt
       text: View Documentation
       link: /en/introduction/what-is-msm
     - theme: alt
-      text: GitHub
-      link: https://github.com/yourusername/msm
+      text: GitHub Releases
+      link: https://github.com/msm9527/msm-wiki/releases/latest
 
 features:
   - icon: 🚀
@@ -61,56 +61,45 @@ MSM (Mosdns Singbox Mihomo Manager) is a unified visual platform for managing **
 
 ## Quick Start
 
-### Single Binary Deployment
+### One-Click Installation (Recommended)
 
 ```bash
-# Download latest version
-wget https://github.com/yourusername/msm/releases/latest/download/msm-linux-amd64
+# Download and run installation script
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+```
+
+After installation, visit `http://your-server-ip:7777`
+
+::: tip First Use
+On first visit, you need to create an administrator account. Please keep your credentials safe.
+:::
+
+### Manual Installation
+
+```bash
+# Download latest version (example with 0.7.1, replace with actual version)
+wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-0.7.1-linux-amd64.tar.gz
+
+# Extract
+tar -xzf msm-0.7.1-linux-amd64.tar.gz
 
 # Add execute permission
-chmod +x msm-linux-amd64
-
-# Set JWT secret
-export JWT_SECRET="your-secret-key-here"
+chmod +x msm
 
 # Run
-./msm-linux-amd64
+./msm
 ```
 
 Visit `http://localhost:7777` to use.
 
-### Docker Deployment
-
-```bash
-docker run -d \
-  --name msm \
-  -p 7777:7777 \
-  -e JWT_SECRET="your-secret-key" \
-  -v /opt/msm/data:/app/data \
-  yourusername/msm:latest
-```
+See [Detailed Installation Guide](/en/guide/getting-started) for more installation options and configurations.
 
 ## Tech Stack
 
-### Backend
-- **Golang** - High-performance backend framework
-- **Gin** - HTTP API framework
-- **GORM** - ORM database operations
-- **SQLite** - Lightweight database
-
-### Frontend
-- **React 18** - Modern frontend framework
-- **TypeScript** - Type safety
-- **Vite** - Fast build tool
-- **TailwindCSS** - Utility-first CSS framework
-- **shadcn/ui** - High-quality UI component library
+- **Frontend**: React 18
+- **Backend**: Golang
 
 ## Community
 
-- [GitHub Issues](https://github.com/yourusername/msm/issues) - Report issues
-- [GitHub Discussions](https://github.com/yourusername/msm/discussions) - Discussion and exchange
-- [Contributing Guide](/en/development/contributing) - Participate in contributions
+- [GitHub Issues](https://github.com/msm9527/msm-wiki/issues) - Report issues
 
-## License
-
-[MIT License](https://github.com/yourusername/msm/blob/main/LICENSE)
