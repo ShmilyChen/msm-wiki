@@ -10,14 +10,14 @@ hero:
     alt: MSM Logo
   actions:
     - theme: brand
-      text: 快速开始
-      link: /zh/guide/getting-started
+      text: 一键安装
+      link: /zh/guide/install
     - theme: alt
       text: 查看文档
       link: /zh/introduction/what-is-msm
     - theme: alt
-      text: GitHub
-      link: https://github.com/yourusername/msm
+      text: GitHub Releases
+      link: https://github.com/msm9527/msm-wiki/releases/latest
 
 features:
   - icon: 🚀
@@ -61,11 +61,28 @@ MSM (Mosdns Singbox Mihomo Manager) 是一个统一管理 **MosDNS**、**SingBox
 
 ## 快速开始
 
-### 单二进制部署
+### 一键安装（推荐）
+
+```bash
+# 下载并运行安装脚本
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+```
+
+安装完成后访问 `http://your-server-ip:7777`
+
+默认账号：
+- 用户名: `admin`
+- 密码: `admin123`
+
+::: tip 提示
+首次登录后请立即修改默认密码！
+:::
+
+### 手动安装
 
 ```bash
 # 下载最新版本
-wget https://github.com/yourusername/msm/releases/latest/download/msm-linux-amd64
+wget https://github.com/msm9527/msm-wiki/releases/latest/download/msm-linux-amd64
 
 # 添加执行权限
 chmod +x msm-linux-amd64
@@ -78,6 +95,8 @@ export JWT_SECRET="your-secret-key-here"
 ```
 
 访问 `http://localhost:7777` 即可使用。
+
+查看 [详细安装教程](/zh/guide/install) 了解更多安装方式和配置选项。
 
 ### Docker 部署
 

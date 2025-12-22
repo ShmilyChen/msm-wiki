@@ -48,7 +48,8 @@ export default defineConfig({
         {
           text: '快速开始',
           items: [
-            { text: '安装部署', link: '/zh/guide/getting-started' },
+            { text: '一键安装部署', link: '/zh/guide/install' },
+            { text: '手动安装', link: '/zh/guide/getting-started' },
             { text: '基础配置', link: '/zh/guide/basic-config' },
             { text: '首次使用', link: '/zh/guide/first-use' }
           ]
