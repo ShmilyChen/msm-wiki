@@ -45,6 +45,35 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
+::: tip 国内加速镜像
+如果 GitHub 访问速度较慢，可以使用以下加速镜像：
+
+**推荐镜像**（全球加速，国内优选）：
+```bash
+curl -fsSL https://edgeone.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+```
+
+**其他可选镜像**：
+```bash
+# Fastly CDN
+curl -fsSL https://hk.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+# 全球加速（带数据统计）
+curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+# 国内线路优化（不建议大文件下载）
+curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+# 备用镜像
+curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+```
+
+**IPv6 用户**：
+```bash
+curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+```
+:::
+
 脚本会自动：
 - 检测系统架构和 libc 类型
 - 下载对应版本（glibc 或 musl）

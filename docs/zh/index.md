@@ -71,6 +71,14 @@ curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | 
 wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
+::: tip 国内加速
+如果 GitHub 访问速度较慢，推荐使用加速镜像：
+```bash
+curl -fsSL https://edgeone.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+```
+更多镜像选项请查看[详细安装教程](/zh/guide/install)。
+:::
+
 安装完成后访问 `http://your-server-ip:7777`
 
 ::: tip 首次使用
