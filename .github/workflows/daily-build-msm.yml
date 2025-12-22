@@ -1,0 +1,214 @@
+name: 每日构建 MSM
+
+on:
+  schedule:
+    # 每天凌晨 4 点（UTC 时间 20:00，即北京时间凌晨 4 点）
+    - cron: '0 20 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: 准备构建信息
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      commit_sha: ${{ steps.meta.outputs.commit_sha }}
+    steps:
+      - name: Checkout MSM 仓库
+        uses: actions/checkout@v4
+        with:
+          repository: msm9527/msm
+          ref: main
+          fetch-depth: 0
+
+      - name: 读取版本信息
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(sed -nE 's/^[[:space:]]*version[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' backend/cmd/msm/commands/root.go | head -n 1)"
+          if [ -z "${VERSION}" ]; then
+            echo "error: 无法从 backend/cmd/msm/commands/root.go 解析版本号" >&2
+            exit 1
+          fi
+
+          COMMIT_SHA="$(git rev-parse HEAD)"
+          SHORT_SHA="$(git rev-parse --short HEAD)"
+
+          # 添加日期后缀，避免版本冲突
+          DATE_SUFFIX="$(date +%Y%m%d)"
+          BUILD_VERSION="${VERSION}-${DATE_SUFFIX}-${SHORT_SHA}"
+
+          echo "version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
+
+          echo "构建版本: ${BUILD_VERSION}"
+          echo "提交 SHA: ${COMMIT_SHA}"
+
+  build:
+    name: 打包编译
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-amd64
+            runs_on: ubuntu-24.04
+            goos: linux
+            goarch: amd64
+          - target: linux-arm64
+            runs_on: ubuntu-24.04
+            goos: linux
+            goarch: arm64
+          - target: darwin-amd64
+            runs_on: macos-15-intel
+            goos: darwin
+            goarch: amd64
+          - target: darwin-arm64
+            runs_on: macos-15
+            goos: darwin
+            goarch: arm64
+    runs-on: ${{ matrix.runs_on }}
+    steps:
+      - name: Checkout MSM 仓库
+        uses: actions/checkout@v4
+        with:
+          repository: msm9527/msm
+          ref: main
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.4"
+          check-latest: true
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 构建 supervisord（嵌入资源）
+        shell: bash
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: ${{ matrix.goos == 'darwin' && '1' || '0' }}
+        run: |
+          set -euo pipefail
+          SUPERVISORD_COMMIT="$(head -n 1 backend/cmd/msm/.supervisord.version | tr -d '\r\n')"
+          if [ -z "${SUPERVISORD_COMMIT}" ]; then
+            echo "error: backend/cmd/msm/.supervisord.version 为空" >&2
+            exit 1
+          fi
+          echo "supervisord commit: ${SUPERVISORD_COMMIT}"
+
+          rm -rf /tmp/supervisord
+          git clone https://github.com/ochinchina/supervisord.git /tmp/supervisord
+          git -C /tmp/supervisord checkout "${SUPERVISORD_COMMIT}"
+
+          (cd /tmp/supervisord && go build -ldflags="-s -w" -o supervisord)
+          cp /tmp/supervisord/supervisord backend/cmd/msm/supervisord
+
+      - name: 构建前端并复制到后端（嵌入资源）
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd frontend
+          npm ci --no-audit --no-fund
+          npm run build
+
+          test -d dist
+
+          rm -rf ../backend/cmd/msm/frontend/dist
+          mkdir -p ../backend/cmd/msm/frontend
+          cp -r dist ../backend/cmd/msm/frontend/
+
+      - name: 编译 MSM（二进制优化版）
+        shell: bash
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: ${{ matrix.goos == 'darwin' && '1' || '0' }}
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.prepare.outputs.version }}"
+          mkdir -p dist
+          cd backend
+          go build -ldflags="-s -w" -o ../dist/msm ./cmd/msm
+          cd ..
+          chmod +x dist/msm
+
+          tar -czf "dist/msm-${VERSION}-${{ matrix.target }}.tar.gz" -C dist msm
+          rm -f dist/msm
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: msm-${{ needs.prepare.outputs.version }}-${{ matrix.target }}
+          path: dist/msm-${{ needs.prepare.outputs.version }}-${{ matrix.target }}.tar.gz
+          if-no-files-found: error
+
+  release:
+    name: 发布每日构建
+    needs: [prepare, build]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout 当前仓库（msm-wiki）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: 创建/更新 daily-build tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.prepare.outputs.version }}"
+          SHA="${GITHUB_SHA}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 删除旧的 daily-build tag（如果存在）
+          git tag -d daily-build >/dev/null 2>&1 || true
+          git push origin ":refs/tags/daily-build" || true
+
+          # 创建新的 daily-build tag
+          git tag -a daily-build -m "每日构建 ${VERSION}" "${SHA}"
+          git push origin "refs/tags/daily-build"
+
+      - name: 创建/更新 GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: daily-build
+          name: 每日构建 - ${{ needs.prepare.outputs.version }}
+          body: |
+            ## 每日自动构建
+
+            **构建版本**: ${{ needs.prepare.outputs.version }}
+            **源仓库**: https://github.com/msm9527/msm
+            **源提交**: ${{ needs.prepare.outputs.commit_sha }}
+            **构建时间**: ${{ github.event.repository.updated_at }}
+
+            此版本由 GitHub Actions 每日自动构建生成。
+          makeLatest: false
+          prerelease: true
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: dist/**/msm-${{ needs.prepare.outputs.version }}-*.tar.gz
