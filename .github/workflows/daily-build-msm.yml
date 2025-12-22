@@ -70,7 +70,15 @@ jobs:
             runs_on: ubuntu-24.04
             goos: linux
             goarch: amd64
+          - target: linux-amd64-musl
+            runs_on: ubuntu-24.04
+            goos: linux
+            goarch: amd64
           - target: linux-arm64
+            runs_on: ubuntu-24.04
+            goos: linux
+            goarch: arm64
+          - target: linux-arm64-musl
             runs_on: ubuntu-24.04
             goos: linux
             goarch: arm64
