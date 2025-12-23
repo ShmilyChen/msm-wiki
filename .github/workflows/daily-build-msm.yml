@@ -26,7 +26,12 @@ jobs:
     outputs:
       version: ${{ steps.meta.outputs.version }}
       commit_sha: ${{ steps.meta.outputs.commit_sha }}
+      commit_sha_short: ${{ steps.meta.outputs.commit_sha_short }}
       branch: ${{ steps.meta.outputs.branch }}
+      changelog: ${{ steps.meta.outputs.changelog }}
+      commit_message: ${{ steps.meta.outputs.commit_message }}
+      commit_author: ${{ steps.meta.outputs.commit_author }}
+      commit_date: ${{ steps.meta.outputs.commit_date }}
     steps:
       - name: Checkout MSM 仓库
         uses: actions/checkout@v4
@@ -49,15 +54,35 @@ jobs:
           fi
 
           COMMIT_SHA="$(git rev-parse HEAD)"
+          COMMIT_SHA_SHORT="$(git rev-parse --short=7 HEAD)"
           BRANCH="${{ inputs.branch || 'main' }}"
+
+          # 获取最新提交信息
+          COMMIT_MESSAGE="$(git log -1 --pretty=format:'%s')"
+          COMMIT_AUTHOR="$(git log -1 --pretty=format:'%an')"
+          COMMIT_DATE="$(git log -1 --pretty=format:'%ci')"
+
+          # 获取最近 10 条提交记录，格式化为 markdown
+          CHANGELOG="$(git log -10 --pretty=format:'- [%h](https://github.com/msm9527/msm/commit/%H) %s _%an, %ar_' | sed 's/$/\\n/' | tr -d '\n')"
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=${COMMIT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "commit_sha_short=${COMMIT_SHA_SHORT}" >> "$GITHUB_OUTPUT"
           echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "commit_message=${COMMIT_MESSAGE}" >> "$GITHUB_OUTPUT"
+          echo "commit_author=${COMMIT_AUTHOR}" >> "$GITHUB_OUTPUT"
+          echo "commit_date=${COMMIT_DATE}" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "changelog<<EOF"
+            echo "${CHANGELOG}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           echo "构建版本: ${VERSION}"
           echo "构建分支: ${BRANCH}"
           echo "提交 SHA: ${COMMIT_SHA}"
+          echo "最新提交: ${COMMIT_MESSAGE}"
 
   build:
     name: 打包编译
@@ -228,17 +253,74 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ needs.prepare.outputs.version }}
-          name: ${{ needs.prepare.outputs.version }}
+          name: 🚀 MSM ${{ needs.prepare.outputs.version }}
           body: |
-            ## 每日自动构建
+            ## 📦 每日自动构建版本
 
-            **构建版本**: ${{ needs.prepare.outputs.version }}
-            **源仓库**: https://github.com/msm9527/msm
-            **源分支**: ${{ needs.prepare.outputs.branch }}
-            **源提交**: ${{ needs.prepare.outputs.commit_sha }}
-            **构建时间**: ${{ github.event.repository.updated_at }}
+            > 此版本由 GitHub Actions 自动构建，包含最新的代码更新。
 
-            此版本由 GitHub Actions 每日自动构建生成。
+            ### 📋 构建信息
+
+            | 项目 | 内容 |
+            |------|------|
+            | **版本号** | `${{ needs.prepare.outputs.version }}` |
+            | **源仓库** | [msm9527/msm](https://github.com/msm9527/msm) |
+            | **构建分支** | `${{ needs.prepare.outputs.branch }}` 🌿 |
+            | **源提交** | [`${{ needs.prepare.outputs.commit_sha_short }}`](https://github.com/msm9527/msm/commit/${{ needs.prepare.outputs.commit_sha }}) |
+            | **构建时间** | ${{ github.event.repository.updated_at }} ⏰ |
+
+            ### 🎯 最新提交
+
+            **${{ needs.prepare.outputs.commit_message }}**
+
+            - 👤 作者: ${{ needs.prepare.outputs.commit_author }}
+            - 📅 时间: ${{ needs.prepare.outputs.commit_date }}
+            - 🔗 链接: https://github.com/msm9527/msm/commit/${{ needs.prepare.outputs.commit_sha }}
+
+            ---
+
+            ### 📝 近期更新记录（最近 10 次提交）
+
+            ${{ needs.prepare.outputs.changelog }}
+
+            ---
+
+            ### 💾 支持的平台
+
+            | 平台 | 架构 | 文件 |
+            |------|------|------|
+            | 🐧 Linux | amd64 (glibc) | `msm-${{ needs.prepare.outputs.version }}-linux-amd64.tar.gz` |
+            | 🐧 Linux | amd64 (musl/Alpine) | `msm-${{ needs.prepare.outputs.version }}-linux-amd64-musl.tar.gz` |
+            | 🐧 Linux | arm64 (glibc) | `msm-${{ needs.prepare.outputs.version }}-linux-arm64.tar.gz` |
+            | 🐧 Linux | arm64 (musl/Alpine) | `msm-${{ needs.prepare.outputs.version }}-linux-arm64-musl.tar.gz` |
+            | 🐧 Linux | armv7 | `msm-${{ needs.prepare.outputs.version }}-linux-armv7.tar.gz` |
+            | 🐧 Linux | armv6 | `msm-${{ needs.prepare.outputs.version }}-linux-armv6.tar.gz` |
+            | 🐧 Linux | 386 | `msm-${{ needs.prepare.outputs.version }}-linux-386.tar.gz` |
+            | 🍎 macOS | amd64 (Intel) | `msm-${{ needs.prepare.outputs.version }}-darwin-amd64.tar.gz` |
+            | 🍎 macOS | arm64 (Apple Silicon) | `msm-${{ needs.prepare.outputs.version }}-darwin-arm64.tar.gz` |
+
+            ### 🚀 快速安装
+
+            ```bash
+            # 使用一键安装脚本（推荐）
+            curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+            # 或手动下载并安装（以 Linux amd64 为例）
+            wget https://github.com/msm9527/msm-wiki/releases/download/${{ needs.prepare.outputs.version }}/msm-${{ needs.prepare.outputs.version }}-linux-amd64.tar.gz
+            tar -xzf msm-${{ needs.prepare.outputs.version }}-linux-amd64.tar.gz
+            sudo mv msm /usr/local/bin/msm
+            sudo chmod +x /usr/local/bin/msm
+            ```
+
+            ### 📚 文档
+
+            - 📖 [完整文档](https://msm9527.github.io/msm-wiki/)
+            - 🚀 [快速开始](https://msm9527.github.io/msm-wiki/zh/guide/getting-started.html)
+            - 💾 [安装部署](https://msm9527.github.io/msm-wiki/zh/guide/install.html)
+
+            ---
+
+            <sub>🤖 由 GitHub Actions 自动构建于 ${{ github.event.repository.updated_at }}</sub>
           makeLatest: true
           allowUpdates: true
           replacesArtifacts: true
