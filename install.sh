@@ -308,6 +308,22 @@ install_msm() {
 
     print_info "安装 MSM..."
 
+    # 尝试停止正在运行的服务/进程，避免覆盖二进制失败
+    if command -v systemctl &> /dev/null; then
+        if systemctl is-active --quiet ${SERVICE_NAME} 2>/dev/null; then
+            print_info "停止 ${SERVICE_NAME} 服务..."
+            systemctl stop ${SERVICE_NAME}
+        fi
+    fi
+    if pgrep -f "/usr/local/bin/msm" > /dev/null 2>&1; then
+        print_info "停止正在运行的 MSM 进程..."
+        pkill -f "/usr/local/bin/msm" || true
+        sleep 1
+        if pgrep -f "/usr/local/bin/msm" > /dev/null 2>&1; then
+            pkill -9 -f "/usr/local/bin/msm" || true
+        fi
+    fi
+
     # 复制文件到系统路径
     cp "${temp_dir}/msm" /usr/local/bin/msm
     chmod +x /usr/local/bin/msm
