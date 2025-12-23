@@ -1,0 +1,52 @@
+# 基于 Debian 13 slim 镜像
+FROM debian:13-slim
+
+# 声明构建参数
+ARG TARGETPLATFORM
+
+# 安装运行时依赖
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    tzdata \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 创建非 root 用户
+RUN useradd -m -u 1000 -s /bin/bash msm
+
+# 创建必要的目录
+RUN mkdir -p /opt/msm /var/log/msm && \
+    chown -R msm:msm /opt/msm /var/log/msm
+
+# 复制对应架构的二进制文件
+# TARGETPLATFORM 格式: linux/amd64, linux/arm64, linux/arm/v7, linux/arm/v6, linux/386
+COPY binaries/${TARGETPLATFORM}/msm /usr/local/bin/msm
+RUN chmod +x /usr/local/bin/msm
+
+# 切换到非 root 用户
+USER msm
+WORKDIR /opt/msm
+
+# 暴露端口
+# 7777: MSM Web 管理界面
+# 53: DNS (MosDNS)
+# 1053: DNS 备用端口
+# 7890: HTTP 代理 (SingBox/Mihomo)
+# 7891: SOCKS5 代理 (SingBox/Mihomo)
+# 7892: 混合代理端口 (SingBox/Mihomo)
+# 6666: 管理端口
+EXPOSE 7777 53 1053 7890 7891 7892 6666
+
+# 环境变量
+ENV JWT_SECRET="" \
+    MSM_PORT="7777" \
+    MSM_CONFIG_DIR="/opt/msm" \
+    TZ="Asia/Shanghai"
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${MSM_PORT}/ || exit 1
+
+# 启动命令
+CMD ["sh", "-c", "msm serve -p ${MSM_PORT} -c ${MSM_CONFIG_DIR}"]
+

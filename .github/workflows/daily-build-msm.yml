@@ -325,3 +325,94 @@ jobs:
           allowUpdates: true
           replacesArtifacts: true
           artifacts: dist/**/msm-${{ needs.prepare.outputs.version }}-*.tar.gz
+
+  docker:
+    name: 构建并推送 Docker 镜像
+    needs: [prepare, release]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout 当前仓库
+        uses: actions/checkout@v4
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: 准备各架构二进制文件
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.prepare.outputs.version }}"
+
+          # 创建目录结构 binaries/{platform}/msm
+          mkdir -p binaries/linux/amd64 binaries/linux/arm64 binaries/linux/arm/v7 binaries/linux/arm/v6 binaries/linux/386
+
+          # 解压并复制各架构的二进制文件
+          echo "准备 linux/amd64 二进制..."
+          tar -xzf "dist/msm-${VERSION}-linux-amd64/msm-${VERSION}-linux-amd64.tar.gz" -C binaries/linux/amd64
+
+          echo "准备 linux/arm64 二进制..."
+          tar -xzf "dist/msm-${VERSION}-linux-arm64/msm-${VERSION}-linux-arm64.tar.gz" -C binaries/linux/arm64
+
+          echo "准备 linux/arm/v7 二进制..."
+          tar -xzf "dist/msm-${VERSION}-linux-armv7/msm-${VERSION}-linux-armv7.tar.gz" -C binaries/linux/arm/v7
+
+          echo "准备 linux/arm/v6 二进制..."
+          tar -xzf "dist/msm-${VERSION}-linux-armv6/msm-${VERSION}-linux-armv6.tar.gz" -C binaries/linux/arm/v6
+
+          echo "准备 linux/386 二进制..."
+          tar -xzf "dist/msm-${VERSION}-linux-386/msm-${VERSION}-linux-386.tar.gz" -C binaries/linux/386
+
+          # 验证文件结构
+          echo "验证二进制文件:"
+          find binaries -name msm -exec ls -lh {} \;
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 登录 Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 构建并推送多架构 Docker 镜像
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.binary
+          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/386
+          push: true
+          tags: |
+            msmbox/msm:${{ needs.prepare.outputs.version }}
+            msmbox/msm:latest
+          labels: |
+            org.opencontainers.image.title=MSM
+            org.opencontainers.image.description=Mosdns Singbox Mihomo Manager
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+            org.opencontainers.image.source=https://github.com/msm9527/msm
+            org.opencontainers.image.url=https://msm9527.github.io/msm-wiki/
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 显示镜像信息
+        shell: bash
+        run: |
+          VERSION="${{ needs.prepare.outputs.version }}"
+          echo "✅ Docker 镜像已推送到 Docker Hub"
+          echo ""
+          echo "镜像标签:"
+          echo "  - msmbox/msm:${VERSION}"
+          echo "  - msmbox/msm:latest"
+          echo ""
+          echo "支持的架构:"
+          echo "  - linux/amd64"
+          echo "  - linux/arm64"
+          echo "  - linux/arm/v7"
+          echo "  - linux/arm/v6"
+          echo "  - linux/386"
+          echo ""
+          echo "使用方式:"
+          echo "  docker pull msmbox/msm:latest"
+          echo "  docker run -d -p 7777:7777 msmbox/msm:latest"
