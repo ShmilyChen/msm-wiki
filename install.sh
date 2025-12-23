@@ -383,7 +383,34 @@ start_service() {
 
 # 显示安装信息
 show_info() {
-    local ip=$(curl -s ifconfig.me || echo "your-server-ip")
+    # 尝试获取服务器 IP 地址
+    local ip="your-server-ip"
+
+    # 方法1: 使用下载命令获取公网 IP
+    if [ "$DOWNLOAD_CMD" = "curl" ]; then
+        ip=$(curl -s --connect-timeout 3 ifconfig.me 2>/dev/null || echo "")
+    elif [ "$DOWNLOAD_CMD" = "wget" ]; then
+        ip=$(wget -qO- --timeout=3 ifconfig.me 2>/dev/null || echo "")
+    fi
+
+    # 方法2: 如果上面失败，尝试获取本地 IP
+    if [ -z "$ip" ] || [ "$ip" = "" ]; then
+        if command -v hostname &> /dev/null; then
+            ip=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "")
+        fi
+    fi
+
+    # 方法3: 尝试使用 ip 命令
+    if [ -z "$ip" ] || [ "$ip" = "" ]; then
+        if command -v ip &> /dev/null; then
+            ip=$(ip route get 1 2>/dev/null | awk '{print $7; exit}' || echo "")
+        fi
+    fi
+
+    # 如果所有方法都失败，使用占位符
+    if [ -z "$ip" ] || [ "$ip" = "" ]; then
+        ip="your-server-ip"
+    fi
 
     echo ""
     echo "=========================================="
