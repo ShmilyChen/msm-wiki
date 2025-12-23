@@ -63,6 +63,17 @@ MSM (Mosdns Singbox Mihomo Manager) 是一个统一管理 **MosDNS**、**SingBox
 
 ### 一键安装（推荐）
 
+::: tip root 用户提示
+如果你已经是 root 用户，可以省略 `sudo`，直接运行：
+```bash
+# 使用 curl
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+
+# 或使用 wget
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+```
+:::
+
 ```bash
 # 使用 curl 下载并运行安装脚本
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
@@ -74,7 +85,11 @@ wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | s
 ::: tip 国内加速
 如果 GitHub 访问速度较慢，推荐使用加速镜像：
 ```bash
+# 普通用户
 curl -fsSL https://edgeone.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+# root 用户
+curl -fsSL https://edgeone.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 更多镜像选项请查看[详细安装教程](/zh/guide/install)。
 :::

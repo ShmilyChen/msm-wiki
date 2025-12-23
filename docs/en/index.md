@@ -63,6 +63,17 @@ MSM (Mosdns Singbox Mihomo Manager) is a unified visual platform for managing **
 
 ### One-Click Installation (Recommended)
 
+::: tip For Root Users
+If you are already the root user, you can omit `sudo` and run directly:
+```bash
+# Using curl
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+
+# Or using wget
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+```
+:::
+
 ```bash
 # Download and run installation script using curl
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
