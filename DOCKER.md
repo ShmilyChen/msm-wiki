@@ -12,7 +12,7 @@ MSM 官方 Docker 镜像，支持多架构部署。
 
 ## 快速开始
 
-> ⚠️ 目前 Docker 部署仅支持 **Host 网络模式**（`--network host` / `network_mode: host`），不支持桥接模式（`-p` / `ports:` 端口映射）。
+> ⚠️ 目前 Docker 部署仅支持 **Host 网络模式**（`--network host` / `network_mode: host`），不支持其他网络模式（包括 `bridge` / `macvlan` / `ipvlan` 等，以及 `-p` / `ports:` 端口映射）。
 
 ### 基础运行
 
@@ -108,7 +108,7 @@ docker-compose up -d
 
 ## 网络模式
 
-目前仅支持 Host 网络模式，不支持桥接模式（端口映射 `-p` / `ports:`）。
+目前仅支持 Host 网络模式，不支持其他网络模式（包括 `bridge` / `macvlan` / `ipvlan` 等，以及端口映射 `-p` / `ports:`）。
 
 ### Host 网络模式（必选）
 

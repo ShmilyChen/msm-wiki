@@ -1,6 +1,6 @@
 # Docker Deployment
 
-> Note: Docker deployment currently supports **host network mode only** (`network_mode: host` / `--network host`). Bridge mode (`ports:` / `-p`) is not supported.
+> Note: Docker deployment currently supports **host network mode only** (`network_mode: host` / `--network host`). Other network modes (including `bridge` / `macvlan` / `ipvlan`, and `ports:` / `-p`) are not supported.
 
 ```bash
 curl -fsSL https://get.docker.com -o get-docker.sh

@@ -35,7 +35,7 @@ docker run -d \
 
 访问管理界面：`http://localhost:7777`
 
-> **注意**: 目前 Docker 部署仅支持 `--network host`（不支持 `-p`/`ports` 端口映射），并需要特权模式（`--privileged`）和 TUN 设备访问权限以支持透明代理、TUN 模式等高级网络功能。
+> **注意**: 目前 Docker 部署仅支持 `--network host`（不支持 `bridge` / `macvlan` / `ipvlan` 等其他网络模式，也不支持 `-p` / `ports` 端口映射），并需要特权模式（`--privileged`）和 TUN 设备访问权限以支持透明代理、TUN 模式等高级网络功能。
 
 ### Docker Compose
 

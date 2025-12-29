@@ -2,7 +2,7 @@
 
 适用于希望用容器管理 MSM 的场景。
 
-> ⚠️ 目前 Docker 部署仅支持 **Host 网络模式**（`network_mode: host` / `--network host`），不支持桥接模式（`ports:` / `-p` 端口映射）。
+> ⚠️ 目前 Docker 部署仅支持 **Host 网络模式**（`network_mode: host` / `--network host`），不支持其他网络模式（包括 `bridge` / `macvlan` / `ipvlan` 等，以及 `ports:` / `-p` 端口映射）。
 
 ## 安装 Docker
 
