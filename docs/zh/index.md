@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "MSM"
   text: "统一管理平台"
-  tagline: 一站式管理 MosDNS、SingBox、Mihomo 的可视化平台
+  tagline: 一站式进程管理的可视化平台
   image:
     src: /logo/logo-square.svg
     alt: MSM Logo
