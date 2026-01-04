@@ -199,6 +199,11 @@ install_dependencies() {
     # 检查 wget 或 curl 是否存在
     if command -v wget &> /dev/null; then
         DOWNLOAD_CMD="wget"
+        if command -v curl &> /dev/null; then
+            if echo "${all_proxy:-}" | grep -Eqi '^socks'; then
+                DOWNLOAD_CMD="curl"
+            fi
+        fi
         return
     elif command -v curl &> /dev/null; then
         DOWNLOAD_CMD="curl"
