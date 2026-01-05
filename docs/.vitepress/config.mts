@@ -21,77 +21,48 @@ export default defineConfig({
 
     nav: [
       { text: '首页', link: '/zh/' },
-      { text: '快速开始', link: '/zh/guide/getting-started' },
-      { text: '用户指南', link: '/zh/guide/' },
-      { text: '部署指南', link: '/zh/deployment/' },
-      {
-        text: '语言',
-        items: [
-          { text: '简体中文', link: '/zh/' },
-          { text: 'English', link: '/en/' }
-        ]
-      }
+      { text: '快速开始', link: '/zh/guide/install' },
+      { text: '路由器集成', link: '/zh/guide/router-integration' },
+      { text: '使用指南', link: '/zh/guide/basic-config' },
+      { text: '常见问题', link: '/zh/faq/' }
     ],
 
     sidebar: {
       '/zh/': [
         {
-          text: '介绍',
+          text: '项目介绍',
           items: [
             { text: '什么是 MSM', link: '/zh/introduction/what-is-msm' },
-            { text: '核心特性', link: '/zh/introduction/features' },
-            { text: '透明代理架构', link: '/zh/introduction/transparent-proxy' }
+            { text: '核心功能', link: '/zh/introduction/features' }
           ]
         },
         {
           text: '快速开始',
           items: [
-            { text: '一键安装部署', link: '/zh/guide/install' },
-            { text: '手动安装', link: '/zh/guide/getting-started' },
-            { text: '基础配置', link: '/zh/guide/basic-config' },
+            { text: '安装部署', link: '/zh/guide/install' },
             { text: '首次使用', link: '/zh/guide/first-use' }
           ]
         },
         {
-          text: '用户指南',
+          text: '路由器集成',
           items: [
-            { text: '用户管理', link: '/zh/guide/user-management' },
+            { text: '集成概述', link: '/zh/guide/router-integration' },
+            { text: 'RouterOS 配置', link: '/zh/guide/routeros' },
+            { text: '爱快配置', link: '/zh/guide/ikuai' },
+            { text: 'OpenWrt 配置', link: '/zh/guide/openwrt' },
+            { text: 'UniFi 配置', link: '/zh/guide/unifi' }
+          ]
+        },
+        {
+          text: '使用指南',
+          items: [
+            { text: '基础配置', link: '/zh/guide/basic-config' },
+            { text: '设备管理', link: '/zh/guide/device-management' },
             { text: 'MosDNS 管理', link: '/zh/guide/mosdns' },
             { text: 'SingBox 管理', link: '/zh/guide/singbox' },
             { text: 'Mihomo 管理', link: '/zh/guide/mihomo' },
             { text: '配置编辑', link: '/zh/guide/config-editor' },
-            { text: '历史记录与回滚', link: '/zh/guide/history' },
             { text: '日志查看', link: '/zh/guide/logs' }
-          ]
-        },
-        {
-          text: 'API 文档',
-          items: [
-            { text: 'API 概览', link: '/zh/api/' },
-            { text: '认证与会话', link: '/zh/api/auth' },
-            { text: '初始化与安装', link: '/zh/api/setup' },
-            { text: '服务管理', link: '/zh/api/services' },
-            { text: '配置管理', link: '/zh/api/config' },
-            { text: '历史记录', link: '/zh/api/history' },
-            { text: '日志管理', link: '/zh/api/logs' },
-            { text: '系统监控', link: '/zh/api/monitor' },
-            { text: '用户管理', link: '/zh/api/users' },
-            { text: '个人资料', link: '/zh/api/profile' },
-            { text: '系统设置', link: '/zh/api/settings' },
-            { text: '系统诊断', link: '/zh/api/system' },
-            { text: '更新管理', link: '/zh/api/update' },
-            { text: 'MosDNS 管理', link: '/zh/api/mosdns' },
-            { text: 'Sing-box 管理', link: '/zh/api/singbox' },
-            { text: 'Mihomo 管理', link: '/zh/api/mihomo' },
-            { text: '事件流（SSE）', link: '/zh/api/events' }
-          ]
-        },
-        {
-          text: '部署指南',
-          items: [
-            { text: '单机部署', link: '/zh/deployment/standalone' },
-            { text: 'Nginx 配置', link: '/zh/deployment/nginx' },
-            { text: 'HTTPS 配置', link: '/zh/deployment/https' }
           ]
         },
         {
