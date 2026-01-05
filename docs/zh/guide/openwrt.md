@@ -193,6 +193,7 @@ nslookup google.com 192.168.1.2
 
 ## 下一步
 
+- [OpenWrt 进阶配置](/zh/guide/openwrt-advanced) - 自动化脚本和高级功能
 - [设备管理](/zh/guide/device-management) - 配置设备白名单
 - [基础配置](/zh/guide/basic-config) - MSM 基础配置
 - [常见问题](/zh/faq/) - 故障排查

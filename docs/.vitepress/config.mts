@@ -52,6 +52,7 @@ export default defineConfig({
             { text: 'RouterOS 配置', link: '/zh/guide/routeros' },
             { text: '爱快配置', link: '/zh/guide/ikuai' },
             { text: 'OpenWrt 配置', link: '/zh/guide/openwrt' },
+            { text: 'OpenWrt 进阶', link: '/zh/guide/openwrt-advanced' },
             { text: 'UniFi 配置', link: '/zh/guide/unifi' }
           ]
         },
