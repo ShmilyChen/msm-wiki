@@ -72,50 +72,6 @@ export default defineConfig({
             { text: '故障排查', link: '/zh/faq/troubleshooting' }
           ]
         }
-      ],
-      '/en/': [
-        {
-          text: 'Introduction',
-          items: [
-            { text: 'What is MSM', link: '/en/introduction/what-is-msm' },
-            { text: 'Features', link: '/en/introduction/features' }
-          ]
-        },
-        {
-          text: 'Getting Started',
-          items: [
-            { text: 'Installation', link: '/en/guide/getting-started' },
-            { text: 'Basic Configuration', link: '/en/guide/basic-config' },
-            { text: 'First Use', link: '/en/guide/first-use' }
-          ]
-        },
-        {
-          text: 'User Guide',
-          items: [
-            { text: 'User Management', link: '/en/guide/user-management' },
-            { text: 'MosDNS Management', link: '/en/guide/mosdns' },
-            { text: 'SingBox Management', link: '/en/guide/singbox' },
-            { text: 'Mihomo Management', link: '/en/guide/mihomo' },
-            { text: 'Config Editor', link: '/en/guide/config-editor' },
-            { text: 'History & Rollback', link: '/en/guide/history' },
-            { text: 'Logs', link: '/en/guide/logs' }
-          ]
-        },
-        {
-          text: 'Deployment',
-          items: [
-            { text: 'Standalone', link: '/en/deployment/standalone' },
-            { text: 'Nginx', link: '/en/deployment/nginx' },
-            { text: 'HTTPS', link: '/en/deployment/https' }
-          ]
-        },
-        {
-          text: 'FAQ',
-          items: [
-            { text: 'FAQ', link: '/en/faq/' },
-            { text: 'Troubleshooting', link: '/en/faq/troubleshooting' }
-          ]
-        }
       ]
     },
 
@@ -186,36 +142,6 @@ export default defineConfig({
       label: '简体中文',
       lang: 'zh-CN',
       link: '/zh/'
-    },
-    en: {
-      label: 'English',
-      lang: 'en-US',
-      link: '/en/',
-      themeConfig: {
-        nav: [
-          { text: 'Home', link: '/en/' },
-          { text: 'Getting Started', link: '/en/guide/getting-started' },
-          { text: 'User Guide', link: '/en/guide/' },
-          { text: 'Deployment', link: '/en/deployment/' }
-        ],
-        editLink: {
-          pattern: 'https://github.com/msm9527/msm-wiki/edit/main/docs/:path',
-          text: 'Edit this page on GitHub'
-        },
-        lastUpdated: {
-          text: 'Last updated'
-        },
-        docFooter: {
-          prev: 'Previous page',
-          next: 'Next page'
-        },
-        outline: {
-          label: 'On this page'
-        },
-        returnToTopLabel: 'Return to top',
-        sidebarMenuLabel: 'Menu',
-        darkModeSwitchLabel: 'Appearance'
-      }
     }
   }
 })
