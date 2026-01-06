@@ -111,20 +111,37 @@ fetch_text() {
     local url="$1"
     local result=""
     local urls=()
+    local show_progress="${2:-true}"
 
-    for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
-        [ -n "$proxy" ] || continue
-        urls+=("$(build_proxy_url "$proxy" "$url")")
-    done
-    urls+=("$url")
+    # 对于 GitHub API，跳过 MSM 专用加速（可能不支持 API）
+    if [[ "$url" == *"api.github.com"* ]]; then
+        for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
+            [ -n "$proxy" ] || continue
+            # 跳过 MSM 专用加速
+            if [[ "$proxy" == *"152.69.226.93:5000"* ]]; then
+                continue
+            fi
+            urls+=("$(build_proxy_url "$proxy" "$url")")
+        done
+        urls+=("$url")
+    else
+        # 其他 URL 使用所有代理
+        for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
+            [ -n "$proxy" ] || continue
+            urls+=("$(build_proxy_url "$proxy" "$url")")
+        done
+        urls+=("$url")
+    fi
 
     local attempt=0
     for u in "${urls[@]}"; do
         attempt=$((attempt + 1))
-        if [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
-            print_info "使用 MSM 专用加速获取..."
-        elif [ $attempt -gt 1 ]; then
-            print_info "尝试备用镜像 ($attempt)..."
+        if [ "$show_progress" = "true" ]; then
+            if [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
+                print_info "使用 MSM 专用加速获取..."
+            elif [ $attempt -gt 1 ]; then
+                print_info "尝试备用镜像 ($attempt)..."
+            fi
         fi
 
         if [ "$DOWNLOAD_CMD" = "wget" ]; then
@@ -304,7 +321,8 @@ get_latest_version() {
     local api_url="https://api.github.com/repos/${GITHUB_REPO}/releases/latest"
     local response
 
-    if ! response=$(fetch_text "$api_url"); then
+    # 尝试从 GitHub API 获取（不显示每次尝试的进度）
+    if ! response=$(fetch_text "$api_url" "false"); then
         response=""
     fi
 
@@ -312,16 +330,20 @@ get_latest_version() {
         version=$(echo "$response" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     fi
 
+    # 如果 API 失败，尝试从 releases 页面获取
     if [ -z "$version" ] || ! echo "$version" | grep -Eq '^v?[0-9]+\.[0-9]+\.[0-9]+'; then
+        print_info "API 获取失败，尝试从 releases 页面获取..."
         local html
         local releases_url="https://github.com/${GITHUB_REPO}/releases/latest"
-        html=$(fetch_text "$releases_url" || true)
+        html=$(fetch_text "$releases_url" "true" || true)
         version=$(echo "$html" | grep -Eo 'releases/tag/v[0-9]+\.[0-9]+\.[0-9]+[^"]*' | head -1 | sed 's#.*/##')
     fi
 
     if [ -z "$version" ]; then
         print_error "无法获取最新版本信息"
         print_info "可尝试设置 MSM_GITHUB_PROXY 或 GITHUB_PROXY 后重试"
+        print_info "或使用 MSM_VERSION 指定版本号，例如："
+        print_info "  MSM_VERSION=0.7.4 bash install.sh"
         print_proxy_tips
         exit 1
     fi
