@@ -111,6 +111,23 @@ MSM_GITHUB_PROXY=https://gh-proxy.org wget -qO- https://raw.githubusercontent.co
 ```
 :::
 
+::: tip 指定版本安装
+默认安装最新版本，如需安装特定版本，可使用 `MSM_VERSION` 环境变量：
+
+```bash
+# 安装指定版本（支持带 v 前缀或不带 v 前缀）
+MSM_VERSION=0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+# 或
+MSM_VERSION=v0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+
+# 结合加速镜像使用
+MSM_VERSION=0.7.4 curl -fsSL http://152.69.226.93:5000/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+```
+
+查看所有可用版本：[GitHub Releases](https://github.com/msm9527/msm-wiki/releases)
+:::
+
 脚本会自动：
 - 检测系统架构和 libc 类型
 - 下载对应版本（glibc 或 musl）

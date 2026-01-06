@@ -16,6 +16,7 @@ NC='\033[0m' # No Color
 GITHUB_REPO="msm9527/msm-wiki"
 RELEASE_URL="https://github.com/${GITHUB_REPO}/releases/latest"
 SERVICE_NAME="msm"
+MSM_VERSION="${MSM_VERSION:-}"
 GITHUB_PROXY="${MSM_GITHUB_PROXY:-${GITHUB_PROXY:-}}"
 GITHUB_PROXY="${GITHUB_PROXY%/}"
 GITHUB_PROXY_CANDIDATES=(
@@ -59,6 +60,10 @@ print_proxy_tips() {
     print_info "  bash install.sh http://192.168.12.239:6152"
     print_info "  bash install.sh socks5://192.168.12.239:6153"
     print_info "  curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash -s -- http://192.168.12.239:6152"
+    print_info ""
+    print_info "指定版本安装(示例)："
+    print_info "  MSM_VERSION=0.7.4 bash install.sh"
+    print_info "  MSM_VERSION=v0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash"
 }
 
 normalize_proxy_env() {
@@ -771,9 +776,19 @@ main() {
     # 安装依赖
     install_dependencies
 
-    # 获取最新版本
-    local version=$(get_latest_version)
-    print_success "最新版本: $version"
+    # 获取版本
+    local version
+    if [ -n "$MSM_VERSION" ]; then
+        version="$MSM_VERSION"
+        # 确保版本号格式正确（添加 v 前缀如果没有）
+        if ! echo "$version" | grep -q '^v'; then
+            version="v${version}"
+        fi
+        print_info "使用指定版本: $version"
+    else
+        version=$(get_latest_version)
+        print_success "最新版本: $version"
+    fi
 
     # 下载 MSM
     local temp_dir=$(download_msm $version $os $arch $libc)
