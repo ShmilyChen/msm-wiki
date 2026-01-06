@@ -57,18 +57,9 @@ wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | s
 ```
 
 ::: tip 国内加速镜像
-如果 GitHub 访问速度较慢，可以使用以下加速镜像：
+安装脚本已内置 MSM 专用加速链接，会自动加速 MSM 二进制文件下载。如果 GitHub 访问速度较慢，可以使用以下加速镜像下载安装脚本：
 
-**MSM 专用加速**（推荐，速度最快）：
-```bash
-# 使用 MSM 专用加速下载安装脚本
-curl -fsSL http://152.69.226.93:5000/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# 或手动指定 MSM 专用加速（安装脚本会自动使用此加速下载 MSM 二进制文件）
-MSM_GITHUB_PROXY=http://152.69.226.93:5000 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-```
-
-**通用加速镜像**（全球加速，国内优选）：
+**通用加速镜像**（推荐）：
 ```bash
 # 普通用户
 curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
@@ -101,13 +92,10 @@ curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm
 curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 
-**安装脚本下载失败时的处理**：
+**手动指定 MSM 专用加速**（用于加速二进制文件下载）：
 ```bash
-# 使用代理转发 GitHub API/Release 下载（普通用户示例）
-MSM_GITHUB_PROXY=https://gh-proxy.org curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-
-# 若 curl 连接失败，可改用 wget
-MSM_GITHUB_PROXY=https://gh-proxy.org wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# 安装脚本会自动使用 MSM 专用加速下载二进制文件
+MSM_GITHUB_PROXY=http://152.69.226.93:5000 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 :::
 
@@ -122,7 +110,7 @@ MSM_VERSION=0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/
 MSM_VERSION=v0.7.4 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 
 # 结合加速镜像使用
-MSM_VERSION=0.7.4 curl -fsSL http://152.69.226.93:5000/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+MSM_VERSION=0.7.4 curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
 查看所有可用版本：[GitHub Releases](https://github.com/msm9527/msm-wiki/releases)

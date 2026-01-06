@@ -118,14 +118,8 @@ wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | s
 ```
 
 ::: tip 国内加速
-安装脚本已内置 MSM 专用加速链接，国内用户下载速度更快。如果 GitHub 访问速度较慢，可使用以下加速镜像：
+安装脚本已内置 MSM 专用加速链接，会自动加速 MSM 二进制文件下载。如果 GitHub 访问速度较慢，可使用通用加速镜像下载安装脚本：
 
-**MSM 专用加速**（推荐）：
-```bash
-curl -fsSL http://152.69.226.93:5000/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
-```
-
-**通用加速镜像**：
 ```bash
 curl -fsSL https://gh-proxy.org/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
