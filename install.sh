@@ -113,25 +113,12 @@ fetch_text() {
     local urls=()
     local show_progress="${2:-true}"
 
-    # 对于 GitHub API，跳过 MSM 专用加速（可能不支持 API）
-    if [[ "$url" == *"api.github.com"* ]]; then
-        for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
-            [ -n "$proxy" ] || continue
-            # 跳过 MSM 专用加速
-            if [[ "$proxy" == *"152.69.226.93:5000"* ]]; then
-                continue
-            fi
-            urls+=("$(build_proxy_url "$proxy" "$url")")
-        done
-        urls+=("$url")
-    else
-        # 其他 URL 使用所有代理
-        for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
-            [ -n "$proxy" ] || continue
-            urls+=("$(build_proxy_url "$proxy" "$url")")
-        done
-        urls+=("$url")
-    fi
+    # 构建所有代理 URL
+    for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
+        [ -n "$proxy" ] || continue
+        urls+=("$(build_proxy_url "$proxy" "$url")")
+    done
+    urls+=("$url")
 
     local attempt=0
     for u in "${urls[@]}"; do
