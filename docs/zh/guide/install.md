@@ -61,11 +61,10 @@ wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | s
 
 **MSM 专用加速**（推荐，速度最快）：
 ```bash
-# 安装脚本会自动使用 MSM 专用加速链接下载
-# 普通用户
-curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# 使用 MSM 专用加速下载安装脚本
+curl -fsSL http://152.69.226.93:5000/https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 
-# 或手动指定 MSM 专用加速
+# 或手动指定 MSM 专用加速（安装脚本会自动使用此加速下载 MSM 二进制文件）
 MSM_GITHUB_PROXY=http://152.69.226.93:5000 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
