@@ -131,12 +131,32 @@ fetch_text() {
             fi
         fi
 
-        if [ "$DOWNLOAD_CMD" = "wget" ]; then
-            result=$(wget -qO- "$u" 2>/dev/null || true)
-        else
-            result=$(curl -fsSL "$u" 2>/dev/null || true)
+        # 调试：显示实际请求的 URL（仅在环境变量 MSM_DEBUG=1 时）
+        if [ "${MSM_DEBUG:-0}" = "1" ]; then
+            print_info "请求 URL: $u"
         fi
-        if [ -n "$result" ]; then
+
+        local success=0
+        if [ "$DOWNLOAD_CMD" = "wget" ]; then
+            if result=$(wget -qO- "$u" 2>/dev/null); then
+                success=1
+            fi
+        else
+            if result=$(curl -fsSL "$u" 2>/dev/null); then
+                success=1
+            fi
+        fi
+
+        # 调试：显示结果
+        if [ "${MSM_DEBUG:-0}" = "1" ]; then
+            if [ $success -eq 1 ]; then
+                print_info "请求成功，响应长度: ${#result} 字节"
+            else
+                print_info "请求失败"
+            fi
+        fi
+
+        if [ $success -eq 1 ] && [ -n "$result" ]; then
             echo "$result"
             return 0
         fi
