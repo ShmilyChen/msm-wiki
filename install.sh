@@ -112,18 +112,36 @@ fetch_text() {
     local urls=()
     local show_progress="${2:-true}"
 
+    # 检测是否已设置代理环境变量
+    local has_proxy=0
+    if [ -n "${http_proxy:-}" ] || [ -n "${https_proxy:-}" ] || [ -n "${all_proxy:-}" ] || \
+       [ -n "${HTTP_PROXY:-}" ] || [ -n "${HTTPS_PROXY:-}" ] || [ -n "${ALL_PROXY:-}" ]; then
+        has_proxy=1
+    fi
+
+    # 如果用户已设置代理，优先直接使用原始 URL（通过代理访问）
+    if [ $has_proxy -eq 1 ]; then
+        urls+=("$url")
+    fi
+
     # 构建所有代理 URL
     for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
         [ -n "$proxy" ] || continue
         urls+=("$(build_proxy_url "$proxy" "$url")")
     done
-    urls+=("$url")
+
+    # 如果没有代理，也添加原始 URL 作为最后的备选
+    if [ $has_proxy -eq 0 ]; then
+        urls+=("$url")
+    fi
 
     local attempt=0
     for u in "${urls[@]}"; do
         attempt=$((attempt + 1))
         if [ "$show_progress" = "true" ]; then
-            if [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
+            if [ $attempt -eq 1 ] && [ $has_proxy -eq 1 ]; then
+                print_info "通过代理获取..."
+            elif [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
                 print_info "使用 MSM 专用加速获取..."
             elif [ $attempt -gt 1 ]; then
                 print_info "尝试备用镜像 ($attempt)..."
@@ -170,16 +188,38 @@ download_with_fallback() {
     local output="$2"
     local urls=()
 
+    # 检测是否已设置代理环境变量
+    local has_proxy=0
+    if [ -n "${http_proxy:-}" ] || [ -n "${https_proxy:-}" ] || [ -n "${all_proxy:-}" ] || \
+       [ -n "${HTTP_PROXY:-}" ] || [ -n "${HTTPS_PROXY:-}" ] || [ -n "${ALL_PROXY:-}" ]; then
+        has_proxy=1
+    fi
+
+    # 如果用户已设置代理，优先直接使用原始 URL（通过代理访问）
+    if [ $has_proxy -eq 1 ]; then
+        print_info "检测到代理设置，将通过代理下载..."
+        urls+=("$url")
+    fi
+
+    # 添加加速镜像 URL
     for proxy in "${GITHUB_PROXY_CANDIDATES[@]}"; do
         [ -n "$proxy" ] || continue
         urls+=("$(build_proxy_url "$proxy" "$url")")
     done
-    urls+=("$url")
+
+    # 如果没有代理，也添加原始 URL 作为最后的备选
+    if [ $has_proxy -eq 0 ]; then
+        urls+=("$url")
+    fi
 
     local attempt=0
     for u in "${urls[@]}"; do
         attempt=$((attempt + 1))
-        if [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
+
+        # 显示下载提示
+        if [ $attempt -eq 1 ] && [ $has_proxy -eq 1 ]; then
+            print_info "通过代理下载..."
+        elif [ $attempt -eq 1 ] && [[ "$u" == *"152.69.226.93:5000"* ]]; then
             print_info "使用 MSM 专用加速下载..."
         elif [ $attempt -eq 1 ]; then
             print_info "开始下载..."
