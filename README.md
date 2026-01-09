@@ -176,9 +176,9 @@ msm-wiki/
 - 无 tag 时降级到最近 20 条提交
 
 详细配置和使用说明请查看：
-- [ModelScope API 配置指南](MODELSCOPE_API_GUIDE.md) - 推荐使用，完全免费
-- [Release 工作流优化指南](RELEASE_WORKFLOW_GUIDE.md)
-- [AI 技术实现详解](AI_SUMMARY_TECHNICAL_GUIDE.md)
+- [ModelScope API 配置指南](.github/docs/MODELSCOPE_API_GUIDE.md) - 推荐使用，完全免费
+- [Release 工作流优化指南](.github/docs/RELEASE_WORKFLOW_GUIDE.md)
+- [AI 技术实现详解](.github/docs/AI_SUMMARY_TECHNICAL_GUIDE.md)
 
 
 ## 🔗 相关链接
