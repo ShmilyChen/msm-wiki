@@ -33,3 +33,5 @@ lerna-debug.log*
 .env.local
 .env.*.local
 *.key
+/.playwright-mcp/
+/.claude/
