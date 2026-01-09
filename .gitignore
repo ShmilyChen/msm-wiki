@@ -27,3 +27,9 @@ lerna-debug.log*
 
 # Spec workflow
 /.spec-workflow/
+
+# Environment variables (IMPORTANT: Never commit API keys!)
+.env
+.env.local
+.env.*.local
+*.key
