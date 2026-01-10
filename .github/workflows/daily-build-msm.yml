@@ -821,14 +821,6 @@ jobs:
           ref: ${{ inputs.branch || 'main' }}
           token: ${{ secrets.MSM_REPO_TOKEN }}
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.25.5"
-          check-latest: true
-          cache: true
-          cache-dependency-path: backend/go.sum
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -839,54 +831,21 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: 构建 supervisord（嵌入资源，用于桌面版）
-        shell: bash
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
-          CGO_ENABLED: 0
-        run: |
-          set -euo pipefail
-          SUPERVISORD_COMMIT="$(head -n 1 backend/cmd/msm/.supervisord.version | tr -d '\r\n')"
-          if [ -z "${SUPERVISORD_COMMIT}" ]; then
-            echo "error: backend/cmd/msm/.supervisord.version 为空" >&2
-            exit 1
-          fi
-          echo "supervisord commit: ${SUPERVISORD_COMMIT}"
+      - name: 下载 macOS CLI 构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: msm-${{ needs.prepare.outputs.version }}-${{ matrix.target }}
+          path: dist
 
-          rm -rf /tmp/supervisord
-          git clone https://github.com/ochinchina/supervisord.git /tmp/supervisord
-          git -C /tmp/supervisord checkout "${SUPERVISORD_COMMIT}"
-
-          (cd /tmp/supervisord && go build -ldflags="-s -w" -o supervisord)
-          cp /tmp/supervisord/supervisord backend/cmd/msm/supervisord
-
-      - name: 构建前端并复制到后端（嵌入资源）
+      - name: 解压 CLI 二进制供 Tauri 使用
         shell: bash
         run: |
           set -euo pipefail
-          cd frontend
-          npm ci --no-audit --no-fund
-          npm run build
-
-          test -d dist
-
-          rm -rf ../backend/cmd/msm/frontend/dist
-          mkdir -p ../backend/cmd/msm/frontend
-          cp -r dist ../backend/cmd/msm/frontend/
-
-      - name: 编译 MSM （用于 Tauri 打包）
-        shell: bash
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
-        run: |
-          set -euo pipefail
+          VERSION="${{ needs.prepare.outputs.version }}"
           mkdir -p dist
-          cd backend
-          go build -ldflags="-s -w" -o ../dist/msm ./cmd/msm
-          cd ..
-          chmod +x dist/msm
+          # 解压出 msm 可执行文件
+          tar -xzf "dist/msm-${VERSION}-${{ matrix.target }}/msm-${VERSION}-${{ matrix.target }}.tar.gz" -C dist
+          ls -l dist
 
       - name: 构建 Tauri 桌面应用
         shell: bash
@@ -909,7 +868,7 @@ jobs:
             rm -rf "$SRC_TAURI_DIR/msm"
           fi
 
-          # 复制编译好的二进制到 src-tauri/msm
+          # 复制已解压好的二进制到 src-tauri/msm
           cp "$DIST_ROOT/msm" "$SRC_TAURI_DIR/msm"
           chmod +x "$SRC_TAURI_DIR/msm"
 
