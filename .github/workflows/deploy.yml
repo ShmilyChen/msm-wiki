@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    # 只在文档 / 站点相关文件发生变更时自动触发部署
+    paths:
+      - 'docs/**'
+      - 'docs/.vitepress/**'
+      - '.github/workflows/deploy.yml'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 permissions:
