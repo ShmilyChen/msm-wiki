@@ -630,6 +630,8 @@ jobs:
             // commitDate 格式: "2026-01-09 12:34:56 +0800"
             const commitDateObj = new Date(commitDate);
             const dateStr = commitDateObj.toLocaleString('zh-CN', {
+              // 统一按北京时间展示，避免 runner 时区（UTC）导致显示偏移 8 小时
+              timeZone: 'Asia/Shanghai',
               year: 'numeric',
               month: '2-digit',
               day: '2-digit',
