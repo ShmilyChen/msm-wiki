@@ -823,6 +823,59 @@ jobs:
           echo ""
           echo "注意: Docker 镜像使用标准 amd64 版本，amd64-v3 优化版仅作为独立二进制文件提供"
           echo ""
+
+  upload:
+    name: 上传每日构建到自定义服务器
+    needs: [prepare, release]
+    if: needs.prepare.outputs.skip != 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: 准备上传文件
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.prepare.outputs.version }}"
+          mkdir -p upload/"${VERSION}"
+          find dist -type f -name "msm-${VERSION}-*.tar.gz" -exec cp {} upload/"${VERSION}"/ \;
+          printf "%s\n" "${VERSION}" > upload/.version
+          echo "待上传文件列表:"
+          ls -lh upload
+          ls -lh upload/"${VERSION}"
+
+      - name: 安装 sshpass
+        shell: bash
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y sshpass
+
+      - name: 传输到目标服务器
+        env:
+          SERVER_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
+          SERVER_USER: ${{ secrets.DEPLOY_SERVER_USER }}
+          SERVER_PASSWORD: ${{ secrets.DEPLOY_SERVER_PASSWORD }}
+          SERVER_TARGET: ${{ secrets.DEPLOY_TARGET_PATH }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SERVER_HOST}" ] || [ -z "${SERVER_USER}" ] || [ -z "${SERVER_PASSWORD}" ] || [ -z "${SERVER_TARGET}" ]; then
+            echo "服务器信息未配置(DEPLOY_SERVER_* secrets 缺失)，跳过上传"
+            exit 0
+          fi
+
+          VERSION="${{ needs.prepare.outputs.version }}"
+
+          sshpass -p "${SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=no "${SERVER_USER}@${SERVER_HOST}" "mkdir -p \"${SERVER_TARGET}\" \"${SERVER_TARGET}/${VERSION}\""
+
+          sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no upload/.version "${SERVER_USER}@${SERVER_HOST}:\"${SERVER_TARGET}/.version\""
+          sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no upload/${VERSION}/msm-${VERSION}-*.tar.gz "${SERVER_USER}@${SERVER_HOST}:\"${SERVER_TARGET}/${VERSION}/\""
+
+          echo "✅ 已将 .version 和打包产物上传至 ${SERVER_HOST}:${SERVER_TARGET}"
           echo "使用方式:"
           echo "  docker pull msmbox/msm:latest"
           echo "  docker run -d -p 7777:7777 msmbox/msm:latest"
