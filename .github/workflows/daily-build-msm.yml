@@ -872,8 +872,8 @@ jobs:
 
           sshpass -p "${SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=no "${SERVER_USER}@${SERVER_HOST}" "mkdir -p '${SERVER_TARGET}' '${SERVER_TARGET}/${VERSION}'"
 
-          sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no upload/.version "${SERVER_USER}@${SERVER_HOST}:${SERVER_TARGET}/.version"
-          sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no upload/${VERSION}/msm-${VERSION}-*.tar.gz "${SERVER_USER}@${SERVER_HOST}:${SERVER_TARGET}/${VERSION}/"
+          sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no upload/.version "${SERVER_USER}@${SERVER_HOST}:'${SERVER_TARGET}/.version'"
+          sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no upload/${VERSION}/msm-${VERSION}-*.tar.gz "${SERVER_USER}@${SERVER_HOST}:'${SERVER_TARGET}/${VERSION}/'"
 
           echo "✅ 已将 .version 和打包产物上传至 ${SERVER_HOST}:${SERVER_TARGET}"
           echo "使用方式:"
