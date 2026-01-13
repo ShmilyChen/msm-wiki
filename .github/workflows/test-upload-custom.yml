@@ -62,7 +62,7 @@ jobs:
           for entry in "${servers[@]}"; do
             IFS=',' read -r host user pass target port <<< "$entry"
             # 掩码：首段保留3字符，尾段保留1字符，中间替换为*******
-            safe_host="$(echo "$host" | sed -E 's/^(.{0,3}).*(.)$/\\1*******\\2/')"
+            safe_host="$(echo "$host" | sed -E 's/^(.{0,3}).*(.)$/\1*******\2/')"
             echo " - ${safe_host}"
           done
 
