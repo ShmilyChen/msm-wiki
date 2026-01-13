@@ -9,7 +9,7 @@ on:
         default: '0.0.0-test'
         type: string
       servers:
-        description: '可选：多服务器列表，每行 host,user,password,target_path，优先于默认 secrets'
+        description: '可选：多服务器列表，每行 host,user,password,target_path[,port]，优先于默认 secrets'
         required: false
         default: ''
         type: string
@@ -74,20 +74,24 @@ jobs:
           printf ' - %s\n' "${servers[@]}"
 
           for entry in "${servers[@]}"; do
-            IFS=',' read -r host user pass target <<< "$entry"
+            IFS=',' read -r host user pass target port <<< "$entry"
             if [ -z "${host}" ] || [ -z "${user}" ] || [ -z "${pass}" ] || [ -z "${target}" ]; then
               echo "跳过无效配置: $entry"
               continue
             fi
 
             TARGET="${target%/}"
+            PORT_OPT=""
+            if [ -n "${port}" ]; then
+              PORT_OPT="-p ${port}"
+            fi
 
             echo ">>> 上传到 ${user}@${host}:${TARGET}"
 
-            sshpass -p "${pass}" ssh -o StrictHostKeyChecking=no "${user}@${host}" "mkdir -p \"${TARGET}\" \"${TARGET}/${VERSION}\""
+            sshpass -p "${pass}" ssh -o StrictHostKeyChecking=no ${PORT_OPT} "${user}@${host}" "mkdir -p \"${TARGET}\" \"${TARGET}/${VERSION}\""
 
-            sshpass -p "${pass}" rsync -avz --no-perms --no-owner --no-group -e "${RSYNC_SSH}" --rsync-path="mkdir -p \"${TARGET}\" && rsync" upload/.version "${user}@${host}:${TARGET}/"
-            sshpass -p "${pass}" rsync -avz --no-perms --no-owner --no-group -e "${RSYNC_SSH}" --rsync-path="mkdir -p \"${TARGET}/${VERSION}\" && rsync" upload/${VERSION}/ "${user}@${host}:${TARGET}/${VERSION}/"
+            sshpass -p "${pass}" rsync -avz --no-perms --no-owner --no-group -e "${RSYNC_SSH} ${PORT_OPT}" --rsync-path="mkdir -p \"${TARGET}\" && rsync" upload/.version "${user}@${host}:${TARGET}/"
+            sshpass -p "${pass}" rsync -avz --no-perms --no-owner --no-group -e "${RSYNC_SSH} ${PORT_OPT}" --rsync-path="mkdir -p \"${TARGET}/${VERSION}\" && rsync" upload/${VERSION}/ "${user}@${host}:${TARGET}/${VERSION}/"
           done
 
           echo "✅ 测试上传完成到全部服务器"
