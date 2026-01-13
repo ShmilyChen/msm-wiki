@@ -16,6 +16,7 @@ NC='\033[0m' # No Color
 GITHUB_REPO="msm9527/msm-wiki"
 SERVICE_NAME="msm"
 MSM_VERSION="${MSM_VERSION:-}"
+MSM_DL_BASE="${MSM_DL_BASE:-}"
 
 # 打印带颜色的消息
 print_info() {
@@ -189,6 +190,18 @@ get_latest_version() {
     local api_url="https://api.github.com/repos/${GITHUB_REPO}/releases/latest"
     local response
 
+    # 若指定了国内镜像，优先从镜像读取版本号
+    if [ -n "$MSM_DL_BASE" ]; then
+        local mirror_version_url="${MSM_DL_BASE%/}/.version"
+        version=$(fetch_text "$mirror_version_url" "true" || true)
+        version=$(echo "$version" | tr -d '\r\n[:space:]')
+        if [ -n "$version" ]; then
+            echo "$version"
+            return
+        fi
+        print_warning "镜像版本获取失败，回退 GitHub"
+    fi
+
     # 尝试从 GitHub API 获取（不显示每次尝试的进度）
     if ! response=$(fetch_text "$api_url" "false"); then
         response=""
@@ -230,9 +243,15 @@ download_msm() {
     if [ "$os" = "linux" ] && [ "$libc" = "musl" ]; then
         libc_suffix="-musl"
     fi
-    filename="msm-${version}-${os}-${arch}${libc_suffix}.tar.gz"
+    local version_clean="${version#v}"
+    filename="msm-${version_clean}-${os}-${arch}${libc_suffix}.tar.gz"
 
-    local download_url="https://github.com/${GITHUB_REPO}/releases/download/${version}/${filename}"
+    local download_url=""
+    if [ -n "$MSM_DL_BASE" ]; then
+        download_url="${MSM_DL_BASE%/}/${version_clean}/${filename}"
+    else
+        download_url="https://github.com/${GITHUB_REPO}/releases/download/${version}/${filename}"
+    fi
 
     print_info "下载 MSM ${version} (${os}-${arch}${libc_suffix})..."
     print_info "下载地址: $download_url"
