@@ -39,7 +39,8 @@ jobs:
       commit_message: ${{ steps.meta.outputs.commit_message }}
       commit_author: ${{ steps.meta.outputs.commit_author }}
       commit_date: ${{ steps.meta.outputs.commit_date }}
-      previous_tag: ${{ steps.meta.outputs.previous_tag }}
+      previous_version: ${{ steps.meta.outputs.previous_version }}
+      previous_version_commit: ${{ steps.meta.outputs.previous_version_commit }}
       commit_count: ${{ steps.meta.outputs.commit_count }}
       ai_summary: ${{ steps.ai_summary.outputs.summary }}
       force_update: ${{ steps.meta.outputs.force_update }}
@@ -86,17 +87,31 @@ jobs:
           COMMIT_AUTHOR="$(git log -1 --pretty=format:'%an')"
           COMMIT_DATE="$(git log -1 --pretty=format:'%ci')"
 
-          # 获取上一个版本的 tag（用于确定提交范围）
-          PREVIOUS_TAG="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo '')"
+          # 通过 .version 历史获取上一个版本及其提交（用于确定提交范围）
+          PREVIOUS_VERSION=""
+          PREVIOUS_VERSION_COMMIT=""
+          if [ -f ".version" ]; then
+            while read -r VERSION_COMMIT; do
+              VERSION_AT_COMMIT="$(git show "${VERSION_COMMIT}:.version" 2>/dev/null | tr -d '[:space:]' || true)"
+              if [ -z "${VERSION_AT_COMMIT}" ]; then
+                continue
+              fi
+              if [ "${VERSION_AT_COMMIT}" != "${VERSION}" ]; then
+                PREVIOUS_VERSION="${VERSION_AT_COMMIT}"
+                PREVIOUS_VERSION_COMMIT="${VERSION_COMMIT}"
+                break
+              fi
+            done < <(git log --follow --format=%H -- .version)
+          fi
 
-          # 如果找到上一个 tag，获取从上个版本到当前的所有提交
+          # 如果找到上一个版本提交，获取从该提交到当前的所有提交
           # 否则获取最近 20 条提交
-          if [ -n "${PREVIOUS_TAG}" ]; then
-            echo "找到上一个版本: ${PREVIOUS_TAG}"
-            CHANGELOG="$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:'- [%h](https://github.com/msm9527/msm/commit/%H) %s _%an, %ar_' | sed 's/$/\\n/' | tr -d '\n')"
-            COMMIT_COUNT="$(git rev-list --count ${PREVIOUS_TAG}..HEAD)"
+          if [ -n "${PREVIOUS_VERSION_COMMIT}" ]; then
+            echo "找到上一个版本: ${PREVIOUS_VERSION} (${PREVIOUS_VERSION_COMMIT})"
+            CHANGELOG="$(git log ${PREVIOUS_VERSION_COMMIT}..HEAD --pretty=format:'- [%h](https://github.com/msm9527/msm/commit/%H) %s _%an, %ar_' | sed 's/$/\\n/' | tr -d '\n')"
+            COMMIT_COUNT="$(git rev-list --count ${PREVIOUS_VERSION_COMMIT}..HEAD)"
           else
-            echo "未找到上一个版本，使用最近 20 条提交"
+            echo "未找到上一个版本提交，使用最近 20 条提交"
             CHANGELOG="$(git log -20 --pretty=format:'- [%h](https://github.com/msm9527/msm/commit/%H) %s _%an, %ar_' | sed 's/$/\\n/' | tr -d '\n')"
             COMMIT_COUNT="20"
           fi
@@ -108,7 +123,8 @@ jobs:
           echo "commit_message=${COMMIT_MESSAGE}" >> "$GITHUB_OUTPUT"
           echo "commit_author=${COMMIT_AUTHOR}" >> "$GITHUB_OUTPUT"
           echo "commit_date=${COMMIT_DATE}" >> "$GITHUB_OUTPUT"
-          echo "previous_tag=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
+          echo "previous_version=${PREVIOUS_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "previous_version_commit=${PREVIOUS_VERSION_COMMIT}" >> "$GITHUB_OUTPUT"
           echo "commit_count=${COMMIT_COUNT}" >> "$GITHUB_OUTPUT"
           echo "force_update=${FORCE_UPDATE}" >> "$GITHUB_OUTPUT"
 
@@ -147,16 +163,17 @@ jobs:
             const { execSync } = require('child_process');
 
             // 获取上一个版本 tag
-            const previousTag = '${{ steps.meta.outputs.previous_tag }}';
+            const previousVersion = '${{ steps.meta.outputs.previous_version }}';
+            const previousVersionCommit = '${{ steps.meta.outputs.previous_version_commit }}';
             const commitCount = parseInt('${{ steps.meta.outputs.commit_count }}');
 
-            // 根据是否有上一个版本，获取相应范围的提交记录
+            // 根据是否有上一个版本提交，获取相应范围的提交记录
             let gitLogCmd;
-            if (previousTag) {
-              console.log(`获取从 ${previousTag} 到 HEAD 的所有提交（共 ${commitCount} 个）`);
-              gitLogCmd = `git log ${previousTag}..HEAD --pretty=format:"%h|%s|%an|%ar"`;
+            if (previousVersionCommit) {
+              console.log(`获取从 ${previousVersionCommit} 到 HEAD 的所有提交（共 ${commitCount} 个）`);
+              gitLogCmd = `git log ${previousVersionCommit}..HEAD --pretty=format:"%h|%s|%an|%ar"`;
             } else {
-              console.log('未找到上一个版本，获取最近 20 条提交');
+              console.log('未找到上一个版本提交，获取最近 20 条提交');
               gitLogCmd = 'git log -20 --pretty=format:"%h|%s|%an|%ar"';
             }
 
@@ -173,8 +190,8 @@ jobs:
             // 如果没有 API Key，使用默认总结
             if (!process.env.MODELSCOPE_API_KEY) {
               console.log('未配置 MODELSCOPE_API_KEY，使用默认总结');
-              const summary = previousTag
-                ? `本次版本从 ${previousTag} 更新，包含 ${commits.length} 个提交，主要更新：${commits[0].subject}`
+              const summary = previousVersion
+                ? `本次版本从 ${previousVersion} 更新，包含 ${commits.length} 个提交，主要更新：${commits[0].subject}`
                 : `本次构建包含 ${commits.length} 个提交，主要更新：${commits[0].subject}`;
               core.setOutput('summary', summary);
               return;
@@ -259,8 +276,8 @@ jobs:
             } catch (error) {
               console.error('AI 总结失败:', error.message);
               // 失败时使用默认总结
-              const summary = previousTag
-                ? `本次版本从 ${previousTag} 更新，包含 ${commits.length} 个提交，主要更新：${commits[0].subject}`
+              const summary = previousVersion
+                ? `本次版本从 ${previousVersion} 更新，包含 ${commits.length} 个提交，主要更新：${commits[0].subject}`
                 : `本次构建包含 ${commits.length} 个提交，主要更新：${commits[0].subject}`;
               core.setOutput('summary', summary);
             }
