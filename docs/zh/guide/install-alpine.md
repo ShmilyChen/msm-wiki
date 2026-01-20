@@ -16,14 +16,13 @@ apk add --no-cache curl
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
 ```
 
-脚本会自动选择 **musl** 版本，但不会创建 systemd 服务。
+脚本会自动选择 **musl** 版本。Alpine 使用 OpenRC，可用内置命令托管启动。
 
-## 启动方式
-
-Alpine 默认使用 OpenRC，请手动启动：
+## 启动方式（OpenRC）
 
 ```bash
-msm -d
+sudo msm service install --manager openrc
+rc-service msm start
 ```
 
 ## 验证安装
