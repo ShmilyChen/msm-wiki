@@ -98,6 +98,67 @@ MSM 支持所有能够配置**静态路由**和**自定义 DNS** 的路由系统
 - ✅ **pfSense** / OPNsense
 - ✅ 其他支持静态路由的路由系统
 
+## 快速开始
+
+### 系统要求
+
+- **平台**: Linux (Debian/Ubuntu/CentOS/Alpine) 或 macOS
+- **架构**: x86_64 (amd64) 或 ARM64 (aarch64)
+- **内存**: 最低 512MB，推荐 2GB
+- **权限**: root 或 sudo 权限
+
+### 一键安装
+
+```bash
+# 使用 curl（sudo）
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+
+# 或使用 wget（sudo）
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
+```
+
+::: tip 国内加速（可选）
+如果直连 GitHub 较慢，可使用社区加速镜像：
+
+```bash
+# curl（sudo）
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
+
+# wget（sudo）
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | sudo bash
+# root 用户
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install.sh | bash
+
+# 或直接使用国内专用脚本（自动走镜像下载二进制）
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | bash
+# wget（sudo）
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | sudo bash
+# root 用户
+wget -qO- https://msm.19930520.xyz/https://raw.githubusercontent.com/msm9527/msm-wiki/refs/heads/main/install_cn.sh | bash
+
+# 镜像直链版（等价，用于部分环境更快）
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | sudo bash
+# root 用户
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | bash
+# wget（sudo）
+wget -qO- https://msm.19930520.xyz/dl/install.sh | sudo bash
+# root 用户
+wget -qO- https://msm.19930520.xyz/dl/install.sh | bash
+```
+
+> 系统自带工具小贴士：Debian/Ubuntu/Alpine 最小镜像通常预装 `wget` 而不一定有 `curl`；CentOS/RHEL/Fedora 常见预装 `curl`；macOS 预装 `curl`。缺少对应工具时可先用包管理器安装（如 `apt-get install curl` 或 `yum install wget`）。
+:::
+
+安装完成后访问 `http://your-server-ip:7777`
+
 ## 快速安装
 
 1. 选择你的系统与部署方式：

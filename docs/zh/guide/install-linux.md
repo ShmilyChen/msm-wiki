@@ -15,21 +15,27 @@
 ```bash
 # curl
 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 
 # 或 wget
 wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+# root 用户
+wget -qO- https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 
 ### 指定版本安装
 
 ```bash
 MSM_VERSION=0.7.7 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | sudo bash
+MSM_VERSION=0.7.7 curl -fsSL https://raw.githubusercontent.com/msm9527/msm-wiki/main/install.sh | bash
 ```
 
 ### 国内网络加速（可选）
 
 ```bash
 curl -fsSL https://msm.19930520.xyz/dl/install.sh | sudo bash
+curl -fsSL https://msm.19930520.xyz/dl/install.sh | bash
 ```
 
 ## 脚本会做什么
