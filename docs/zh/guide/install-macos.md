@@ -27,11 +27,11 @@ msm -d
 
 访问地址：`http://<MSM-IP>:7777`
 
-::: warning 安全提示
-由于应用未经过 Apple 公证，macOS 可能提示“文件已损坏/无法打开”。请执行以下命令解除限制：
+::: warning 安全提示（CLI）
+由于应用未经过 Apple 公证，macOS 可能提示“文件已损坏/无法打开”。请在 `msm` 所在目录执行：
 
 ```bash
-/usr/bin/xattr -cr "/Applications/msm-desktop.app" && /usr/bin/codesign -fs - "/Applications/msm-desktop.app"
+/usr/bin/xattr -cr ./msm && /usr/bin/codesign -fs - ./msm
 ```
 :::
 
