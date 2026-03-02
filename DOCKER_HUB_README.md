@@ -27,7 +27,6 @@ docker run -d \
   --name msm \
   --privileged \
   --device /dev/net/tun \
-  --sysctl net.ipv4.ip_forward=1 \
   --network host \
   -v /opt/msm:/opt/msm \
   msmbox/msm:latest
@@ -51,8 +50,6 @@ services:
     privileged: true
     devices:
       - /dev/net/tun
-    sysctls:
-      - net.ipv4.ip_forward=1
     volumes:
       - ./msm-data:/opt/msm
     environment:
@@ -102,7 +99,6 @@ docker run -d \
   --name msm \
   --privileged \
   --device /dev/net/tun \
-  --sysctl net.ipv4.ip_forward=1 \
   --network host \
   -v /your/data/path:/opt/msm \
   msmbox/msm:latest
