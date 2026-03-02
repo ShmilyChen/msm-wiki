@@ -8,18 +8,18 @@
 
 
 > 当前 Beta 版本：`beta-0.9.11`  
-> 发布时间：2026-02-12 10:45  
+> 发布时间：2026-03-02 15:23  
 > - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/beta-0.9.11>  
 > - 下载方式：同一发布页内提供各平台二进制与安装包
 
-本次发布窗口内无新增提交
+本次版本从 2026-03-01T20:49:36Z 之后更新，包含 4 个提交，主要更新：fix: Linux服务安装默认配置目录固定为/root/.msm
 
 ::: details 📋 构建信息
 - **发布通道**: beta（Beta 版）
-- **源提交**: [`f55c9ab`](https://github.com/msm9527/msm/commit/f55c9abbc69cf6d5ccf31059cbf9d915d6def9cf)
-- **提交信息**: chore: sync version to 0.9.11
-- **提交作者**: github-actions[bot]
-- **提交时间**: 2026-02-12 02:45:26 +0000
+- **源提交**: [`a00155b`](https://github.com/msm9527/msm/commit/a00155bb08105e06ebb5c5721bbe45383a9ba38a)
+- **提交信息**: fix: Linux服务安装默认配置目录固定为/root/.msm
+- **提交作者**: msm
+- **提交时间**: 2026-03-02 15:23:24 +0800
 :::
 
 ---
