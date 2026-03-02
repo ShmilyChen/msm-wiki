@@ -16,6 +16,7 @@ NC='\033[0m' # No Color
 SERVICE_NAME="msm"
 MSM_VERSION="${MSM_VERSION:-}"
 MSM_DL_BASE="https://msm.19930520.xyz/dl"
+MSM_CONFIG_DIR="${MSM_CONFIG_DIR:-}"
 
 # 打印带颜色的消息
 print_info() {
@@ -73,6 +74,26 @@ check_root() {
         print_info "  方式3: 切换到 root 用户后运行 bash install.sh"
         exit 1
     fi
+}
+
+# 解析 MSM 配置目录（确保 systemd 服务使用持久目录）
+resolve_config_dir() {
+    # 允许外部显式指定
+    if [ -n "$MSM_CONFIG_DIR" ]; then
+        echo "$MSM_CONFIG_DIR"
+        return
+    fi
+
+    # 优先读取 root 用户 home
+    local root_home=""
+    if command -v getent > /dev/null 2>&1; then
+        root_home=$(getent passwd root 2>/dev/null | cut -d: -f6 || true)
+    fi
+    if [ -z "$root_home" ]; then
+        root_home="/root"
+    fi
+
+    echo "${root_home}/.msm"
 }
 
 # 检测系统架构
@@ -287,8 +308,8 @@ install_service() {
 
     # 检测服务管理器
     if command -v systemctl &> /dev/null; then
-        # 使用 MSM 内置命令安装 systemd 服务
-        /usr/local/bin/msm service install
+        # 显式指定配置目录，避免在部分 CT/非交互环境落到临时目录
+        /usr/local/bin/msm service install --manager systemd -c "$MSM_CONFIG_DIR"
         print_success "systemd 服务已安装"
     elif command -v rc-update &> /dev/null; then
         # Alpine Linux 使用 OpenRC
@@ -626,7 +647,7 @@ show_info() {
     echo "  journalctl -u msm -f"
     echo ""
     echo "安装位置: /usr/local/bin/msm"
-    echo "配置目录: /root/.msm"
+    echo "配置目录: ${MSM_CONFIG_DIR}"
     echo ""
     echo "文档地址: https://msm9527.github.io/msm-wiki/zh/"
     echo "=========================================="
@@ -643,6 +664,10 @@ main() {
 
     # 检查 root 权限
     check_root
+
+    # 解析配置目录（用于 service install，避免重启后丢失初始化状态）
+    MSM_CONFIG_DIR=$(resolve_config_dir)
+    print_info "MSM 配置目录: $MSM_CONFIG_DIR"
 
     # 检测操作系统和架构
     local os=$(detect_os)
