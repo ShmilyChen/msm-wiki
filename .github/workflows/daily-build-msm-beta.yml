@@ -856,8 +856,19 @@ jobs:
 
             Co-Authored-By: GitHub Actions <github-actions[bot]@users.noreply.github.com>"
 
-            git push
-            echo "✅ 已推送 Wiki 更新"
+            # 推送前先获取远程状态，处理可能的冲突
+            git fetch origin
+            if ! git push; then
+              echo "推送失败，检测到远程更新，正在同步..."
+              git pull --rebase origin main
+              if ! git push; then
+                echo "❌ 推送仍然失败，可能存在冲突"
+                exit 1
+              fi
+              echo "✅ 已同步远程更改并推送 Wiki 更新"
+            else
+              echo "✅ 已推送 Wiki 更新"
+            fi
           fi
 
   docker:
