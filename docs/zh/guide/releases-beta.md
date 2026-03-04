@@ -8,18 +8,18 @@
 
 
 > 当前 Beta 版本：`beta-0.9.12`  
-> 发布时间：2026-03-03 17:55  
+> 发布时间：2026-03-04 13:04  
 > - 发布页：<https://github.com/msm9527/msm-wiki/releases/tag/beta-0.9.12>  
 > - 下载方式：同一发布页内提供各平台二进制与安装包
 
-本次发布窗口内无新增提交
+本次版本从 2026-03-03T20:56:02Z 之后更新，包含 1 个提交，主要更新：chore: switch nftables dependency to msm fork
 
 ::: details 📋 构建信息
 - **发布通道**: beta（Beta 版）
-- **源提交**: [`c80bc90`](https://github.com/msm9527/msm/commit/c80bc90a1a8d34c000b73726c89e85191cab766e)
-- **提交信息**: chore: sync version to 0.9.12
-- **提交作者**: github-actions[bot]
-- **提交时间**: 2026-03-03 09:55:21 +0000
+- **源提交**: [`be6f7f0`](https://github.com/msm9527/msm/commit/be6f7f06cd464cebe2cec85955afcc9622a94210)
+- **提交信息**: chore: switch nftables dependency to msm fork
+- **提交作者**: msm
+- **提交时间**: 2026-03-04 13:04:56 +0800
 :::
 
 ---
