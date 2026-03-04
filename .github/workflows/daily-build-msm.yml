@@ -301,7 +301,7 @@ jobs:
                   'Authorization': `Bearer ${process.env.MODELSCOPE_API_KEY}`
                 },
                 body: JSON.stringify({
-                  model: 'Qwen/Qwen2.5-Coder-32B-Instruct',  // 使用通义千问 2.5 Coder 模型
+                  model: 'ZhipuAI/GLM-5',  // 使用 GLM-5 模型
                   messages: [
                     {
                       role: 'system',
